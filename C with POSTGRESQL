@@ -1,0 +1,46 @@
+1) installing --> sudo apt-get install libpq-dev 
+2) find -I --> pg_config --includedir
+3) find library directory --> pg_config --libdir
+4) create c file --> gedit hello.c
+5) compile c file --> gcc -o hello hello.c -I/usr/include/postgresql -lpq -std=c99
+6) run c program --> ./hello
+7) changing postgresql password --> sudo -u postgres psql(entering)
+				   ALTER USER postgres PASSWORD 'mypassword'(changing password)
+
+8) The created table is called Cars and it has three columns: the Id, the name of the car, and its price.
+
+PGresult *res = PQexec(conn, "DROP TABLE IF EXISTS Cars");
+
+The PQexec() function submits an SQL command to the server and waits for the result. The PGresult encapsulates the result of a query. Our SQL command drops a table if it already exists.
+
+if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+    do_exit(conn, res);
+}
+
+The PQresultStatus() function should be called to check the return value for any errors. The PGRES_COMMAND_OK is returned if the command was properly executed and it does not return data.
+
+PQclear(res);
+
+Every command result should be freed with the PQclear() function when it is no longer needed.
+
+$ ./create_table 
+$ psql testdb
+psql (9.3.9)
+Type "help" for help.
+
+testdb=> SELECT * FROM Cars;
+ id |    name    | price  
+----+------------+--------
+  1 | Audi       |  52642
+  2 | Mercedes   |  57127
+  3 | Skoda      |   9000
+  4 | Volvo      |  29000
+  5 | Bentley    | 350000
+  6 | Citroen    |  21000
+  7 | Hummer     |  41400
+  8 | Volkswagen |  21600
+(8 rows)
+
+We execute the program and verify the created table with the psql tool.
+
+
