@@ -65,7 +65,7 @@ void createDB(){
     checkResualtStatus();
 
 
-    res = PQexec(conn, "CREATE  DATABASE fpdb ENCODING 'UTF8'"); 
+    res = PQexec(conn, "CREATE  DATABASE fpdb"); 
     checkResualtStatus();
 
     PQfinish(conn);	
@@ -109,22 +109,22 @@ void createTables(){
     checkResualtStatus();
 }
 
-void insertIntoTables(int time, char province[50], char city[50], int market_id, int product_id, int price, int quantity, int has_sold){  
+void insertIntoTables(char time[50], char province[50], char city[50], char market_id[50], char product_id[50], char price[50], char quantity[50], char has_sold[50]){  
 
     char command[256];
-    sprintf(command, "INSERT INTO fp_stores_data VALUES(%d, '%s', '%s', %d, %d, %d, %d, %d)", time, province, city, market_id, product_id,  price, quantity, has_sold);
+    sprintf(command, "INSERT INTO fp_stores_data VALUES(%s, '%s', '%s', %s, %s, %s, %s, %s)", time, province, city, market_id, product_id,  price, quantity, has_sold);
     res = PQexec(conn, command);
     checkResualtStatus();
 
 
     char command_1[256];
-    sprintf(command_1, "INSERT INTO fp_city_aggregation VALUES(%d, '%s', %d, %d, %d)", time, city, price, quantity, has_sold);
+    sprintf(command_1, "INSERT INTO fp_city_aggregation VALUES(%s, '%s', %s, %s, %s)", time, city, price, quantity, has_sold);
     res = PQexec(conn, command_1);
     checkResualtStatus();
 
 
     char command_2[256];
-    sprintf(command_2, "INSERT INTO fp_store_aggregation VALUES(%d, %d, %d)", market_id, price, has_sold);
+    sprintf(command_2, "INSERT INTO fp_store_aggregation VALUES(%s, %s, %s)", market_id, price, has_sold);
     checkResualtStatus();
 }
 
@@ -142,7 +142,7 @@ void readFiles(){
 	    
       	          //finding name of file
 		  //dir->d_name is the name of a file in (d) directory
-	          char file[100] = "tmp\\final_project\\"; 
+	          char file[100] = "/tmp/final_project/"; 
 	          strcat(file, dir->d_name);
 
 
@@ -154,40 +154,69 @@ void readFiles(){
      	          while (fgets(line, sizeof(line), fp)) {
 		      
 		      int i;		      
-		      for(i = 0; i < strlen(line); i++){
-		          int time;
-			  char province[50];
-			  char city[50];
-			  int market_id;
-			  int product_id;
-			  int price;
-			  int quantity;
-			  int has_sold;
+		      for(i = 0; line[i] != '\0'; i++){
+		          
+			  char c;
+
+			  char time[50] = "";
+			  char province[50] = "";
+			  char city[50] = "";
+			  char market_id[50] = "";
+			  char product_id[50] = "";
+			  char price[50] = "";
+			  char quantity[50] = "";
+			  char has_sold[50] = "";
 			
-			  fscanf(fp, "%d", &time);
-			  fgetc(fp);
 
-			  fgets(province, 50, fp);
-			  fgetc(fp);
+			  while((c = line[i]) != ','){
+                           	i++;
+                       	        strncat(time, &c, 1);
+			  }
+			  
+			  i++;
+			  while((c = line[i]) != ','){
+                                i++;
+                                strncat(province, &c, 1);
+                          }
 
-			  fgets(city, 50, fp);
-			  fgetc(fp);
-
-			  fscanf(fp, "%d", &market_id);
-                          fgetc(fp);
-
-			  fscanf(fp, "%d", &product_id);
-                          fgetc(fp);
-
-			  fscanf(fp, "%d", &price);
-                          fgetc(fp);
-
-			  fscanf(fp, "%d", &quantity);
-                          fgetc(fp);
-
-			  fscanf(fp, "%d", &has_sold);
-		 	
-			  insertIntoTables(time, province, city, market_id, product_id, price, quantity, has_sold);
+			  i++;
+			  while((c = line[i]) != ','){
+                                i++;
+                                strncat(city, &c, 1);
+                          }
+			  
+			  i++;
+			  while((c = line[i]) != ','){
+                                i++;
+                                strncat(market_id, &c, 1);
+                          }
+			  
+			  i++;
+			  while((c = line[i]) != ','){
+                                i++;
+                                strncat(product_id, &c, 1);
+                          }
+			  
+			  i++;
+			  while((c = line[i]) != ','){
+                                i++;
+                                strncat(price, &c, 1);
+                          }
+		  	  
+			  i++;
+			  while((c = line[i]) != ','){
+                                i++;
+                                strncat(quantity, &c, 1);
+                          }
+			  
+			  i++;
+			  while((c = line[i]) != ' '){
+                                i++;
+                                strncat(has_sold, &c, 1);
+                          }
+			  
+			 		 
+			 insertIntoTables(time, province, city, market_id, product_id, price, quantity, has_sold);
 
 
 		      }//end of --> for(i = 0; i < strlen(line); i++)
@@ -213,7 +242,7 @@ int main() {
     
     createTables();
     
-    //readFiles();
+    readFiles();
    
     PQfinish(conn);
 
