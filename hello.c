@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <libpq-fe.h>
-#include<dirent.h>
+#include <dirent.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -65,14 +65,14 @@ void createDB(){
     checkResualtStatus();
 
 
-    res = PQexec(conn, "CREATE  DATABASE fpdb"); 
+    res = PQexec(conn, "CREATE  DATABASE fpdb ENCODING 'UTF8'"); 
     checkResualtStatus();
 
     PQfinish(conn);	
 
 
     conn = PQconnectdb("host=localhost dbname=fpdb user=postgres password=javad-9831032");
-
+    
     if (PQstatus(conn) == CONNECTION_BAD) {
 
         fprintf(stderr, "Connection to database failed: %s\n",
@@ -81,6 +81,8 @@ void createDB(){
         PQfinish(conn);
         exit(1);
     }
+
+    printf("NOTICE:  connected to data base by name fpdb\n");
 }
 
 
@@ -107,7 +109,10 @@ void createTables(){
 
     res = PQexec(conn, "CREATE TABLE fp_store_aggregation (market_id integer, price integer, has_sold integer)");
     checkResualtStatus();
+
+    printf("NOTICE:  all tables were created\n");
 }
+
 
 void insertIntoTables(char time[50], char province[50], char city[50], char market_id[50], char product_id[50], char price[50], char quantity[50], char has_sold[50]){  
 
@@ -125,6 +130,7 @@ void insertIntoTables(char time[50], char province[50], char city[50], char mark
 
     char command_2[256];
     sprintf(command_2, "INSERT INTO fp_store_aggregation VALUES(%s, %s, %s)", market_id, price, has_sold);
+    res = PQexec(conn, command_2);
     checkResualtStatus();
 }
 
@@ -136,8 +142,6 @@ void readFiles(){
     d = opendir("/tmp/final_project/");
     
     if (d){
-//         while(1){
-      
 	      while ((dir = readdir(d)) != NULL){
 	    
       	          //finding name of file
@@ -145,6 +149,13 @@ void readFiles(){
 	          char file[100] = "/tmp/final_project/"; 
 	          strcat(file, dir->d_name);
 
+		
+		  //we want to read text files not other files
+	  	  char *ptr = strstr(dir->d_name, "text");	  
+		  if (ptr == NULL)
+            		continue;
+        	  
+		  printf("NOTICE:  start inserting datas into tables\n");
 
 	          //pointer to file
 	          FILE *fp = fopen (file, "r");
@@ -153,9 +164,7 @@ void readFiles(){
 	          char line[256];
      	          while (fgets(line, sizeof(line), fp)) {
 		      
-		      int i;		      
-		      for(i = 0; line[i] != '\0'; i++){
-		          
+		      	  int i = 0;		     
 			  char c;
 
 			  char time[50] = "";
@@ -168,66 +177,43 @@ void readFiles(){
 			  char has_sold[50] = "";
 			
 
-			  while((c = line[i]) != ','){
-                           	i++;
+			  while((c = line[i++]) != ',')
                        	        strncat(time, &c, 1);
+
+			  
+			  while((c = line[i++]) != ',')
+                                strncat(province, &c, 1);
+
+
+			  while((c = line[i++]) != ',')
+                                strncat(city, &c, 1);
+                       
+	
+			  while((c = line[i++]) != ',')
+                                strncat(market_id, &c, 1);
+			  
+			  while((c = line[i++]) != ',')
+                                strncat(product_id, &c, 1);
+	
+			  while((c = line[i++]) != ',')
+                                strncat(price, &c, 1);
+		
+			  while((c = line[i++]) != ',')
+                                strncat(quantity, &c, 1);
+
+			  while(i != strlen(line)){
+                           	c = line[i++];
+			     	strncat(has_sold, &c, 1);
 			  }
 			  
-			  i++;
-			  while((c = line[i]) != ','){
-                                i++;
-                                strncat(province, &c, 1);
-                          }
-
-			  i++;
-			  while((c = line[i]) != ','){
-                                i++;
-                                strncat(city, &c, 1);
-                          }
-			  
-			  i++;
-			  while((c = line[i]) != ','){
-                                i++;
-                                strncat(market_id, &c, 1);
-                          }
-			  
-			  i++;
-			  while((c = line[i]) != ','){
-                                i++;
-                                strncat(product_id, &c, 1);
-                          }
-			  
-			  i++;
-			  while((c = line[i]) != ','){
-                                i++;
-                                strncat(price, &c, 1);
-                          }
-		  	  
-			  i++;
-			  while((c = line[i]) != ','){
-                                i++;
-                                strncat(quantity, &c, 1);
-                          }
-			  
-			  i++;
-			  while((c = line[i]) != ' '){
-                                i++;
-                                strncat(has_sold, &c, 1);
-                          }
-			  
-			 		 
 			 insertIntoTables(time, province, city, market_id, product_id, price, quantity, has_sold);
-
-
-		      }//end of --> for(i = 0; i < strlen(line); i++)
 		  	    
 	         }//end of --> while (fgets(line, sizeof(line), fp))
 
 	         fclose(fp);
 	         remove(file);
-    	    }//end of --> while ((dir = readdir(d)) != NULL)
-//	    sleep(65);
-//        }//end of --> while(1)
+		 printf("NOTICE:  %s was removed\n", file);
+    	    }//while ((dir = readdir(d)) != NULL)
         closedir(d);
     }//end of --> if (d)
 }//end of function
@@ -242,8 +228,13 @@ int main() {
     
     createTables();
     
-    readFiles();
-   
+    while(1){
+        readFiles();
+	printf("NOTICE:  start sleeping\n");
+	sleep(65);
+	printf("NOTICE:  finish sleeping\n");
+    }//end of --> while(1)
+    
     PQfinish(conn);
 
     return 0;
