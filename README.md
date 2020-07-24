@@ -15,7 +15,7 @@ watch -n 60 ./download.sh
 ##  c program
 
 ### introduction
-this c program do this works: 
+this c program do these works: 
 1)connection to data base as default db named postgres 
 2)creation new data base by name fpdb 
 3)switch to fpdb data base 
@@ -29,3 +29,24 @@ this c program do this works:
 first compile it : gcc -o hello hello.c -I/usr/include/postgresql -lpq -std=c99 
 then run bash script program as i said befor and at last run this program 
 by  command : ./hello 
+
+## python3 program
+
+### introduction
+this program do these works:
+1)connect to data base 'fpdb'  
+2)find 6 analysis about data's in 3 tables of "fpdb" data base  
+3)write analysis into a txt file  
+4)repeat these works every 70 sec  
+
+### how it runs?
+after running bash script program to download files and running c program we have to run 
+python program by command: python3 analysis.py
+
+## conclusion
+these three programs are for downloading files from a server and inserting data of these 
+files to data base and finally analysis them and write them on a file
+tanks.
+Mohammad Javad Zandiyeh.
+
+
