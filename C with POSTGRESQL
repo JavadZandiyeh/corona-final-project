@@ -44,3 +44,26 @@ testdb=> SELECT * FROM Cars;
 We execute the program and verify the created table with the psql tool.
 
 
+
+9)
+    databases: separate different sets of structures and data from one another
+    tables: define the data structure and store the actual data values within databases
+            In PostgreSQL, there is also an intermediary object between databases and tables called schema:
+
+    schema: a namespace within a database that contains tables, indexes, views, and other items. 
+
+10) a command for finding the databases --> \l
+
+
+-------------------------------------------------------------
+11)for installing packeges that need for python project we have to do this
+	a) sudo su -> [for root accesssing]
+	
+	b) apt update -> [if neede to update] 
+	-> if error 'hash sum mismatch' accured you have to put this   Acquire::CompressionTypes::Order:: "gz";  
+ 	on file etc/apt/apt.conf.d/99compression-workaround to force apt not to use lzma compressed metadata but use gz
+	
+	c) apt install python3-pip -> [pip3 need for installing python3 packages]
+	
+	d) pip install [name of package comes here] -> [installing every packeges of python]
+
